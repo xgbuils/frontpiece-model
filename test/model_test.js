@@ -321,9 +321,6 @@ describe('Frontpiece.Model', function () {
                             if (attrs.value > 5) {
                                 return "Error: value is greater than 5"
                             }
-                        },
-                        options: {
-                            validate: true
                         }
                     })
                     var fancy = new FancyModel({
@@ -368,20 +365,18 @@ describe('Frontpiece.Model', function () {
                     this.valid   = 0
                     var FancyModel = Model.extend({
                         initialize: function () {
-                            this.on('invalid', function () {
+                            this.on('invalid', function (o, error) {
                                 ++self.invalid
+                                self.error = error
                             })
-                            this.on('valid', function () {
+                            this.on('valid', function (o, error) {
                                 ++self.valid
                             })
                         },
                         validate: function (attrs) {
                             if (attrs.value > 5) {
-                                return "Error: value is greater than 5"
+                                return "error"
                             }
-                        },
-                        options: {
-                            validate: true
                         }
                     })
                     this.fancy = new FancyModel({
@@ -400,6 +395,14 @@ describe('Frontpiece.Model', function () {
                     this.fancy.set('value', 7)
                     this.fancy.isValid().should.be.eql(false)
                 })
+                it('`validationError` property is truthy string when set invalid property', function () {
+                    this.fancy.set('value', 7)
+                    this.fancy.validationError.should.be.eql('error')
+                })
+                it('2nd parameter in `invalid` callback is error returned in `validate` method if set invalid property', function () {
+                    this.fancy.set('value', 9)
+                    this.error.should.be.eql(this.fancy.validationError)
+                })
                 it('triggers "valid" event when set valid property', function () {
                     this.fancy.set('value', 5)
                     should(this.valid).be.eql(1)
@@ -411,6 +414,10 @@ describe('Frontpiece.Model', function () {
                 it('`isValid` method returns true when set valid property', function () {
                     this.fancy.set('value', 5)
                     this.fancy.isValid().should.be.eql(true)
+                })
+                it('`validationError` property is undefined when set valid property', function () {
+                    this.fancy.set('value', 4)
+                    should(this.fancy.validationError).be.eql(undefined)
                 })
             })
 
