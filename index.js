@@ -17,7 +17,8 @@ Model.prototype = Object.create(Observer.prototype)
 
 objectAssign(Model.prototype, {
     get: function (key) {
-        return this.attributes[key]
+        var attrs = this.attributes
+        return key ? attrs[key] : attrs
     },
     set: function (key, val, options) {
         var attrs

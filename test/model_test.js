@@ -100,6 +100,7 @@ describe('Frontpiece.Model', function () {
                     initialize: function () {
                         self.foo  = this.get('foo')
                         self.fizz = this.get('fizz')
+                        self.all  = this.get()
                     }
                 })
                 this.fancy = new FancyModel({
@@ -112,6 +113,12 @@ describe('Frontpiece.Model', function () {
             })
             it('get `fizz` property', function () {
                 this.fizz.should.be.eql('buzz')
+            })
+            it('get all properties of model', function () {
+                this.all.should.be.eql({
+                	foo: 'bar',
+                	fizz: 'buzz'
+                })
             })
         })
 
