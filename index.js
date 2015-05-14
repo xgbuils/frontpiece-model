@@ -10,7 +10,7 @@ function Model (attrs, options) {
     }
     this._built = true
     _change.call(this, this.attributes)
-    _validate.call(this, this.attributes, options)
+    this.validationError = _validate.call(this, this.attributes, options)
 }
 
 Model.prototype = Object.create(Observer.prototype)
@@ -31,7 +31,10 @@ objectAssign(Model.prototype, {
         }
         objectAssign(this.attributes, attrs)
         _change.call(this, attrs)
-        _validate.call(this, this.attributes, options)
+        this.validationError = _validate.call(this, this.attributes, options)
+    },
+    isValid: function () {
+        return !this.validationError
     }
 })
 
@@ -45,12 +48,11 @@ function _change (attrs) {
 }
 
 function _validate (attrs, options) {
-        options = objectAssign(this.options || {}, options)
-        if (!this._built || !options.validate || !this.validate) return true;
-        var error = this.validate(attrs, options) || null;
-        if (!error) return true;
-        this.trigger('invalid', this, error)
-        return false;
+    options = objectAssign({}, this.options, options)
+    if (!this._built || !options.validate || !this.validate) return;
+    var error = this.validate(attrs, options) || undefined;
+    this.trigger((error ? 'in' : '') + 'valid', this, error)
+    return error
 }
 
 function extend (props) {
