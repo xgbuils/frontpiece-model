@@ -252,9 +252,6 @@ describe('Frontpiece.Model', function () {
                             if (attrs.value > 5) {
                                 return "Error: value is greater than 5"
                             }
-                        },
-                        options: {
-                            validate: true
                         }
                     })
                     var fancy = new FancyModel({
@@ -342,6 +339,56 @@ describe('Frontpiece.Model', function () {
                 it('does not trigger "invalid" event when set value 4', function () {
                     this.fancy.set('value', 4)
                     should(this.invalid).be.eql(1)
+                })
+            })
+
+            describe('when extends Model with falsy value in options.validate "invalid" event is not triggered by default', function () {
+            	beforeEach(function () {
+            		var self = this
+                    this.invalid = 0
+                    this.FancyModel = Model.extend({
+                        initialize: function () {
+                            this.on('invalid', function () {
+                                ++self.invalid
+                            })
+                        },
+                        validate: function (attrs) {
+                            if (attrs.value > 5) {
+                                return "Error: value is greater than 5"
+                            }
+                        },
+                        options: {
+                            validate: false
+                        }
+                    })
+            	})
+                it('is not triggered when instance of FancyModel is created', function () {
+                    var fancy = new this.FancyModel({
+                        value: 8
+                    })
+                    this.invalid.should.be.eql(0)
+                })
+                it('is not triggered when set is called', function () {
+                    var fancy = new this.FancyModel({
+                        value: 8
+                    })
+                    fancy.set('value', 100)
+                    this.invalid.should.be.eql(0)
+                })
+                it('is triggered when instance of FancyModel is created  with {validate: true} option', function () {
+                    var fancy = new this.FancyModel({
+                        value: 8
+                    }, {
+                    	validate: true
+                    })
+                    this.invalid.should.be.eql(1)
+                })
+                it('is triggered when set is called with {validate: true} parameter', function () {
+                    var fancy = new this.FancyModel({
+                        value: 8
+                    })
+                    fancy.set('value', 100, {validate: true})
+                    this.invalid.should.be.eql(1)
                 })
             })
         })

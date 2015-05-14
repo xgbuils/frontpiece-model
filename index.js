@@ -2,6 +2,7 @@ var Observer     = require('ontrigger')
 var objectAssign = require('object-assign')
 
 function Model (attrs, options) {
+    this.options || (this.options = {validate: true})
     this.attributes = {}
     this.set(attrs, options)
     if (this.initialize) {
