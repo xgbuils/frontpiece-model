@@ -21,22 +21,29 @@ objectAssign(Model.prototype, {
         return key ? attrs[key] : attrs
     },
     set: function (key, val, options) {
-        var attrs
-        if (typeof key === 'string') {
-            (attrs = {})[key] = val
-        } else if (typeof key === 'object') {
-            attrs = key
-        } else {
-            return
-        }
-        objectAssign(this.attributes, attrs)
-        _change.call(this, attrs)
-        this.validationError = _validate.call(this, this.attributes, options)
+        _set.call(this, key, val, options, function (attrs, options) {
+            objectAssign(this.attributes, attrs)
+        })
     },
     isValid: function () {
         return !this.validationError
     }
 })
+
+function _set(key, val, options, set) {
+    var attrs
+    if (typeof key === 'string') {
+        (attrs = {})[key] = val
+    } else if (typeof key === 'object') {
+        attrs = key
+        options = val
+    } else {
+        return
+    }
+    set.call(this, attrs, options)
+    _change.call(this, attrs)
+    this.validationError = _validate.call(this, this.attributes, options)
+}
 
 function _change (attrs) {
     if (this._built) {
@@ -60,9 +67,16 @@ function extend (props) {
     var child  = function (attrs, options) {
         parent.call(this, attrs, options)
     }
+    var set = props.set
+    delete props.set
 
     child.prototype = Object.create(parent.prototype)
     objectAssign(child.prototype, props)
+    if (set) {
+        child.prototype.set = function (key, val, options) {
+            _set.call(this, key, val, options, set)
+        }
+    }
 
     child.extend = extend
 
