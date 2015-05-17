@@ -3,13 +3,14 @@ var objectAssign = require('object-assign')
 
 function Model (attrs, options) {
     this.options || (this.options = {validate: true})
+    var options     = objectAssign({}, this.options, options)
     this.attributes = {}
     this.set(attrs, options)
     if (this.initialize) {
         this.initialize(attrs, options)
     }
     this._built = true
-    _change.call(this, this.attributes)
+    _change.call(this, this.attributes, options)
     this.validationError = _validate.call(this, this.attributes, options)
 }
 
@@ -41,13 +42,14 @@ function _set(key, val, options, set) {
     } else {
         return
     }
+    options = objectAssign({}, this.options, options)
     set.call(this, attrs, options)
-    _change.call(this, attrs)
+    _change.call(this, attrs, options)
     this.validationError = _validate.call(this, this.attributes, options)
 }
 
-function _change (attrs) {
-    if (this._built) {
+function _change (attrs, options) {
+    if (this._built && !options.silent) {
         for (var key in attrs) {
             this.trigger('change:' + key)
         }
@@ -56,8 +58,7 @@ function _change (attrs) {
 }
 
 function _validate (attrs, options) {
-    options = objectAssign({}, this.options, options)
-    if (!this._built || !options.validate || !this.validate) return;
+    if (options.silent || !this._built || !options.validate || !this.validate) return;
     var error = this.validate(attrs, options) || undefined;
     this.trigger((error ? 'in' : '') + 'valid', this, error)
     return error
