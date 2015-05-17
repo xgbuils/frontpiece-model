@@ -16,6 +16,7 @@ function Model (attrs, options) {
 Model.prototype = Object.create(Observer.prototype)
 
 objectAssign(Model.prototype, {
+    constructor: Model,
     get: function (key) {
         var attrs = this.attributes
         return key ? attrs[key] : attrs
@@ -63,6 +64,7 @@ function _validate (attrs, options) {
 }
 
 function extend (props) {
+    props || (props = {})
     var parent = this
     var child  = function (attrs, options) {
         parent.call(this, attrs, options)
@@ -71,6 +73,7 @@ function extend (props) {
     delete props.set
 
     child.prototype = Object.create(parent.prototype)
+    child.prototype.constructor = child
     objectAssign(child.prototype, props)
     if (set) {
         child.prototype.set = function (key, val, options) {

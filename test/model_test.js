@@ -17,6 +17,11 @@ describe('Frontpiece.Model', function () {
         ;(typeof model.on).should.be.eql('function')
     })
 
+    it ('has constructor', function () {
+        var model = new Model()
+        model.constructor.should.be.eql(Model)
+    })
+
     describe('#get', function () {
         beforeEach(function () {
             this.model = new Model({
@@ -93,6 +98,11 @@ describe('Frontpiece.Model', function () {
     })
 
     describe('extend Model to FancyModel', function() {
+        it ('has constructor', function () {
+            var FancyModel = Model.extend()
+            var fancy = new FancyModel()
+            fancy.constructor.should.be.eql(FancyModel)
+        })
         describe('using get inside initialize', function () {
             beforeEach(function () {
                 var self = this
