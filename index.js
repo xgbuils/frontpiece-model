@@ -49,11 +49,13 @@ function _set(key, val, options, set) {
 }
 
 function _change (attrs, options) {
+    var changes = []
     if (this._built && !options.silent) {
         for (var key in attrs) {
             this.trigger('change:' + key)
+            changes.push(key)
         }
-        this.trigger('change')
+        this.trigger('change', changes)
     }
 }
 
