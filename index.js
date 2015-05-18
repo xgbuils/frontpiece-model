@@ -10,8 +10,8 @@ function Model (attrs, options) {
         this.initialize(attrs, options)
     }
     this._built = true
-    _change.call(this, this.attributes, options)
     this.validationError = _validate.call(this, this.attributes, options)
+    _change.call(this, this.attributes, options)
 }
 
 Model.prototype = Object.create(Observer.prototype)
@@ -44,8 +44,8 @@ function _set(key, val, options, set) {
     }
     options = objectAssign({}, this.options, options)
     set.call(this, attrs, options)
-    _change.call(this, attrs, options)
     this.validationError = _validate.call(this, this.attributes, options)
+    _change.call(this, attrs, options)
 }
 
 function _change (attrs, options) {

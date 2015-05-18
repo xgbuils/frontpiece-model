@@ -367,6 +367,27 @@ describe('Frontpiece.Model', function () {
                     invalid.should.be.eql(0)
                     valid.should.be.eql(1)
                 })
+                describe('consistent value returned for isValid when is used in change event callback', function () {
+                    it('isValid returns false in change callback if invalid FancyModel is created', function () {
+                        var valid = ''
+                        var FancyModel = Model.extend({
+                            initialize: function () {
+                                this.on('change', function () {
+                                    valid = this.isValid()
+                                })
+                            },
+                            validate: function (attrs) {
+                                if (attrs.value > 5) {
+                                    return "Error: value is greater than 5"
+                                }
+                            }
+                        })
+                        var fancy = new FancyModel({
+                            value: 9
+                        })
+                        valid.should.be.eql(false)
+                    })
+                })
             })
             describe('set method triggers "valid" or "invalid" event after invalid FancyModel object is created', function () {
                 beforeEach(function () {
