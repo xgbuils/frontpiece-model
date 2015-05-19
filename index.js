@@ -10,8 +10,8 @@ function Model (attrs, options) {
         this.initialize(attrs, options)
     }
     this._built = true
-    this.validationError = _validate.call(this, this.attributes, options)
-    _change.call(this, this.attributes, options)
+    this.validationError = this._validate(this.attributes, options)
+    this._change(this.attributes, options)
 }
 
 Model.prototype = Object.create(Observer.prototype)
@@ -29,6 +29,22 @@ objectAssign(Model.prototype, {
     },
     isValid: function () {
         return !this.validationError
+    },
+    _change: function (attrs, options) {
+        var changes = []
+        if (this._built && !options.silent) {
+            for (var key in attrs) {
+                this.trigger('change:' + key)
+                changes.push(key)
+            }
+            this.trigger('change', changes)
+        }
+    },
+    _validate: function (attrs, options) {
+        if (options.silent || !this._built || !options.validate || !this.validate) return;
+        var error = this.validate(attrs, options) || undefined;
+        this.trigger((error ? 'in' : '') + 'valid', this, error)
+        return error
     }
 })
 
@@ -44,26 +60,8 @@ function _set(key, val, options, set) {
     }
     options = objectAssign({}, this.options, options)
     set.call(this, attrs, options)
-    this.validationError = _validate.call(this, this.attributes, options)
-    _change.call(this, attrs, options)
-}
-
-function _change (attrs, options) {
-    var changes = []
-    if (this._built && !options.silent) {
-        for (var key in attrs) {
-            this.trigger('change:' + key)
-            changes.push(key)
-        }
-        this.trigger('change', changes)
-    }
-}
-
-function _validate (attrs, options) {
-    if (options.silent || !this._built || !options.validate || !this.validate) return;
-    var error = this.validate(attrs, options) || undefined;
-    this.trigger((error ? 'in' : '') + 'valid', this, error)
-    return error
+    this.validationError = this._validate(this.attributes, options)
+    this._change(attrs, options)
 }
 
 function extend (props) {
