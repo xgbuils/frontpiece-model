@@ -1,4 +1,3 @@
-//var should = require('should')
 var chai = require('chai')
 chai.use(require('chai-things'))
 var should = chai.should()
@@ -470,6 +469,40 @@ describe('Frontpiece.Model', function () {
                 it('`validationError` property is undefined when set valid property', function () {
                     this.fancy.set('value', 4)
                     expect(this.fancy.validationError).to.be.equal(undefined)
+                })
+            })
+
+            describe('validationError property is consistent inside invalid and valid event callback', function () {
+                before(function () {
+                    var self = this
+                    this.invalid = 0
+                    this.valid   = 0
+                    var FancyModel = Model.extend({
+                        initialize: function () {
+                            this.on('invalid', function (o, error) {
+                                self.validationError = this.validationError
+                            })
+                            this.on('valid', function (o, error) {
+                                self.validationError = this.validationError
+                            })
+                        },
+                        validate: function (attrs) {
+                            if (attrs.value > 5) {
+                                return "error"
+                            }
+                        }
+                    })
+                    this.fancy = new FancyModel({
+                        value: 10
+                    }, {validate: false})
+                })
+                it('validationError is truly string when is triggered invalid event', function () {
+                    this.fancy.set('value', 8)
+                    expect(this.validationError).to.be.equal('error')
+                })
+                it('validationError is undefined when is triggered valid event', function () {
+                    this.fancy.set('value', 2)
+                    expect(this.validationError).to.be.equal(undefined)
                 })
             })
 

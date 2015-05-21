@@ -10,7 +10,7 @@ function Model (attrs, options) {
         this.initialize(attrs, options)
     }
     this._built = true
-    this.validationError = this._validate(this.attributes, options)
+    this._validate(this.attributes, options)
     this._change(this.attributes, options)
 }
 
@@ -42,7 +42,7 @@ objectAssign(Model.prototype, {
     },
     _validate: function (attrs, options) {
         if (options.silent || !this._built || !options.validate || !this.validate) return;
-        var error = this.validate(attrs, options) || undefined;
+        var error = this.validationError = this.validate(attrs, options) || undefined;
         this.trigger((error ? 'in' : '') + 'valid', this, error)
         return error
     }
@@ -60,7 +60,7 @@ function _set(key, val, options, set) {
     }
     options = objectAssign({}, this.options, options)
     set.call(this, attrs, options)
-    this.validationError = this._validate(this.attributes, options)
+    this._validate(this.attributes, options)
     this._change(attrs, options)
 }
 
