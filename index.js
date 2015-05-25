@@ -24,6 +24,7 @@ objectAssign(Model.prototype, {
     },
     set: function (key, val, options) {
         _set.call(this, key, val, options, function (attrs, options) {
+            this._previousAttributes = objectAssign({}, this.attributes)
             objectAssign(this.attributes, attrs)
         })
     },
@@ -32,12 +33,13 @@ objectAssign(Model.prototype, {
     },
     _change: function (attrs, options) {
         var changes = []
+        var prev    = this._previousAttributes
         if (this._built && !options.silent) {
             for (var key in attrs) {
-                this.trigger('change:' + key)
+                this.trigger('change:' + key, prev[key])
                 changes.push(key)
             }
-            this.trigger('change', changes)
+            this.trigger('change', changes, prev)
         }
     },
     _validate: function (attrs, options) {

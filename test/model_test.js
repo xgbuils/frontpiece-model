@@ -155,9 +155,10 @@ describe('Frontpiece.Model', function () {
                     this.change = this.change_foo = this.change_fizz = 0
                     var FancyModel = Model.extend({
                         initialize: function () {
-                            this.on('change', function (props) {
+                            this.on('change', function (props, prev) {
                                 ++self.change
                                 self.props = props
+                                self.prev  = prev
                             })
                             this.on('change:foo', function () {
                                 ++self.change_foo
@@ -175,8 +176,11 @@ describe('Frontpiece.Model', function () {
                 it('triggers event "change" when instance of FancyModel is created', function () {
                     expect(this.change).to.be.equal(1)
                 })
-                it('parameter of "change" callback has changed keys', function () {
+                it('first parameter of "change" callback has changed keys', function () {
                    this.props.should.contain('foo').and.contain('fizz')
+                })
+                it('second parameter of "change" callback has previousAttributes object', function () {
+                   this.prev.should.be.deep.equal({})
                 })
                 it('triggers event "change:foo" when instance of FancyModel is created', function () {
                     expect(this.change_foo).to.be.equal(1)
@@ -243,11 +247,13 @@ describe('Frontpiece.Model', function () {
                     this.change = this.change_foo = this.change_fizz = 0
                     var FancyModel = Model.extend({
                         initialize: function () {
-                            this.on('change', function () {
+                            this.on('change', function (props, prev) {
                                 ++self.change
+                                self.prev = prev
                             })
-                            this.on('change:foo', function () {
+                            this.on('change:foo', function (prev) {
                                 ++self.change_foo
+                                self.prevAttr = prev
                             })
                             this.on('change:fizz', function () {
                                 ++self.change_fizz
@@ -263,9 +269,20 @@ describe('Frontpiece.Model', function () {
                     this.fancy.set('foo', 'rab')
                     expect(this.change).to.be.equal(2)
                 })
+                it('second parameter of "change" callback has previousAttributes object', function () {
+                    this.fancy.set('foo', 'rab')
+                    this.prev.should.be.deep.equal({
+                        foo: 'bar',
+                        fizz: 'buzz'
+                    })
+                })
                 it('triggers event "change:foo" when set value in `foo` property', function () {
                     this.fancy.set('foo', 'rab')
                     expect(this.change_foo).to.be.equal(2)
+                })
+                it('first parameter of "change:foo" callback has previous value of changed property', function () {
+                    this.fancy.set('foo', 'rab')
+                    this.prevAttr.should.be.equal('bar')
                 })
                 it('triggers event "change:fizz" when set value in `fizz` property', function () {
                     this.fancy.set('fizz', 'zzub')
