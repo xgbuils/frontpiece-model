@@ -1,6 +1,6 @@
 {
   "name": "frontpiece.model",
-  "version": "0.5.4",
+  "version": "0.5.5",
   "description": "frontend model with validation",
   "main": "index.js",
   "scripts": {
@@ -24,7 +24,7 @@
   },
   "homepage": "https://github.com/xgbuils/frontent-model",
   "dependencies": {
-    "frontpiece.extend-factory": "^0.1.0",
+    "frontpiece.extend-factory": "^0.1.1",
     "object-assign": "^2.0.0",
     "ontrigger": "^0.2.0"
   },
