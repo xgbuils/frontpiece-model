@@ -1,6 +1,8 @@
 var Observer     = require('ontrigger')
 var objectAssign = require('object-assign')
 
+var extendFactory = require('frontpiece.extend-factory')
+
 function Model (attrs, options) {
     this.options || (this.options = {validate: true})
     var options     = objectAssign({}, this.options, options)
@@ -23,10 +25,10 @@ objectAssign(Model.prototype, {
         return key ? attrs[key] : attrs
     },
     set: function (key, val, options) {
-        _set.call(this, key, val, options, function (attrs, options) {
+        _set.call(this, function (attrs, options) {
             this._previousAttributes = objectAssign({}, this.attributes)
             objectAssign(this.attributes, attrs)
-        })
+        }, key, val, options)
     },
     isValid: function () {
         return !this.validationError
@@ -50,7 +52,7 @@ objectAssign(Model.prototype, {
     }
 })
 
-function _set(key, val, options, set) {
+function _set(set, key, val, options) {
     var attrs
     if (typeof key === 'string') {
         (attrs = {})[key] = val
@@ -66,29 +68,8 @@ function _set(key, val, options, set) {
     this._change(attrs, options)
 }
 
-function extend (props) {
-    props || (props = {})
-    var parent = this
-    var child  = function (attrs, options) {
-        parent.call(this, attrs, options)
-    }
-    var set = props.set
-    delete props.set
-
-    child.prototype = Object.create(parent.prototype)
-    child.prototype.constructor = child
-    objectAssign(child.prototype, props)
-    if (set) {
-        child.prototype.set = function (key, val, options) {
-            _set.call(this, key, val, options, set)
-        }
-    }
-
-    child.extend = extend
-
-    return child
-}
-
-Model.extend = extend
+Model.extend = extendFactory({
+    set: _set
+})
 
 module.exports = Model

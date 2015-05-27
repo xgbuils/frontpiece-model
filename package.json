@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/xgbuils/frontent-model",
   "dependencies": {
+    "frontpiece.extend-factory": "^0.1.0",
     "object-assign": "^2.0.0",
     "ontrigger": "^0.2.0"
   },
