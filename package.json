@@ -1,6 +1,6 @@
 {
   "name": "frontpiece.model",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "description": "frontend model with validation",
   "main": "index.js",
   "scripts": {
